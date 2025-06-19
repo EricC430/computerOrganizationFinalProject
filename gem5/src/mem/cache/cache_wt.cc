@@ -727,8 +727,8 @@ Cache::serviceMSHRTargets(MSHR *mshr, const PacketPtr pkt, CacheBlk *blk,
                 satisfyRequest(tgt_pkt, blk, true, mshr->hasPostDowngrade());
 
                 // ADDED
-                if (blk->isWritable() && tgt_pkt->isWrite()) {
-                    PacketPtr writeclean_pkt = writecleanBlk(blk, false, tgt_pkt->id);
+                if (blk && blk->isWritable() && tgt_pkt->isWrite()) {
+                    PacketPtr writeclean_pkt = writecleanBlk(blk, true, tgt_pkt->id);
                     writebacks.push_back(writeclean_pkt);
                 }
                 // ADDED
@@ -856,8 +856,11 @@ Cache::serviceMSHRTargets(MSHR *mshr, const PacketPtr pkt, CacheBlk *blk,
 PacketPtr
 Cache::evictBlock(CacheBlk *blk)
 {
-    PacketPtr pkt = (blk->isDirty() || writebackClean) ?
-        writebackBlk(blk) : cleanEvictBlk(blk);
+    // ADDED
+    // PacketPtr pkt = (blk->isDirty() || writebackClean) ?
+    //     writebackBlk(blk) : cleanEvictBlk(blk);
+    PacketPtr pkt = cleanEvictBlk(blk);
+    // ADDED
 
     invalidateBlock(blk);
 
@@ -876,8 +879,10 @@ Cache::evictBlock(CacheBlk *blk, PacketList &writebacks)
 PacketPtr
 Cache::cleanEvictBlk(CacheBlk *blk)
 {
+    /* ADDED
     assert(!writebackClean);
     assert(blk && blk->isValid() && !blk->isDirty());
+    */
     // Creating a zero sized write, a message to the snoop filter
     Request *req =
         new Request(regenerateBlkAddr(blk), blkSize, 0,

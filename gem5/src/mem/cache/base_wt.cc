@@ -930,7 +930,7 @@ BaseCache::access(PacketPtr pkt, CacheBlk *&blk, Cycles &lat,
         if (wb_entry) {
             assert(wb_entry->getNumTargets() == 1);
             PacketPtr wbPkt = wb_entry->getTarget()->pkt;
-            assert(wbPkt->isWriteback());
+            // assert(wbPkt->isWriteback()); // ADDED
 
             if (pkt->isCleanEviction()) {
                 // The CleanEvict and WritebackClean snoops into other
@@ -1070,11 +1070,11 @@ BaseCache::access(PacketPtr pkt, CacheBlk *&blk, Cycles &lat,
         incHitCount(pkt);
         satisfyRequest(pkt, blk);
         maintainClusivity(pkt->fromCache(), blk);
-
+        
         // ADDED
-        if (blk->isWritable()) {
-            DPRINTF(Cache, "pkt->req->getDest() = %d\n", pkt->req->getDest());
-            PacketPtr writeclean_pkt = writecleanBlk(blk, false, pkt->id);
+        if (blk && blk->isWritable() && pkt->isWrite()) {
+            DPRINTF(Cache, "pkt->req->getDest() = %d\n", pkt->req->getDest()); // ADDED
+            PacketPtr writeclean_pkt = writecleanBlk(blk, true, pkt->id);
             writebacks.push_back(writeclean_pkt);
         }
         // ADDED
