@@ -727,10 +727,10 @@ Cache::serviceMSHRTargets(MSHR *mshr, const PacketPtr pkt, CacheBlk *blk,
                 satisfyRequest(tgt_pkt, blk, true, mshr->hasPostDowngrade());
 
                 // ADDED
-                // if (blk->isWritable() && tgt_pkt->isWrite()) {
-                //     PacketPtr writeclean_pkt = writecleanBlk(blk, false, tgt_pkt->id);
-                //     writebacks.push_back(writeclean_pkt);
-                // }
+                if (blk->isWritable() && tgt_pkt->isWrite()) {
+                    PacketPtr writeclean_pkt = writecleanBlk(blk, false, tgt_pkt->id);
+                    writebacks.push_back(writeclean_pkt);
+                }
                 // ADDED
 
                 // How many bytes past the first request is this one
